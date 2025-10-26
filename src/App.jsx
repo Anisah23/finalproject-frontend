@@ -8,9 +8,9 @@ import "./App.css"; // Ensure you have Tailwind CSS set up
 function App() {
   return (
     <Router>
-      <div className="min-h-screen bg-black">
+      <div className="app">
         <Navigation />
-        <div className="pt-20 p-6 text-white">
+        <div className="app-content">
           {/* Future routes go here */}
           <Routes>
             <Route path="/" element={<LandingPage />} />
