@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Navigation from "./components/Navigation";
 import LandingPage from "./pages/LandingPage";
 import Auth from "./pages/Auth";
-import "./App.css"; // Ensure you have Tailwind CSS set up
+import "./App.css";
 
 function App() {
   return (
