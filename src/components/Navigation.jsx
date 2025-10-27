@@ -1,7 +1,13 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
-export default function Navigation() {
+export default function Navigation({ isLoggedIn = false }) {
+  const location = useLocation();
+  const isLandingPage = location.pathname === '/';
+  const isAuthPage = location.pathname === '/auth';
+
+  const showAuthLink = !isLoggedIn && (isLandingPage || isAuthPage);
+
   return (
     <nav className="nav">
       <div className="nav-container">
@@ -12,14 +18,22 @@ export default function Navigation() {
         </Link>
         <div className="nav-links">
           <Link to="/gallery" className="nav-link">
-            Galerie
+            Gallery
           </Link>
           <Link to="/wishlist" className="nav-link">
-            Ma Liste
+            Wishlist
           </Link>
-          <Link to="/auth" className="nav-link">
-            Sign In / Sign Up
-          </Link>
+          {isLoggedIn ? (
+            <Link to="/dashboard" className="nav-link">
+              Dashboard
+            </Link>
+          ) : (
+            showAuthLink && (
+              <Link to="/auth" className="nav-link">
+                Sign In / Sign Up
+              </Link>
+            )
+          )}
         </div>
       </div>
     </nav>

@@ -3,120 +3,120 @@ import React, { useState, useEffect } from 'react';
 export default function Gallery() {
   const [artworks, setArtworks] = useState([]);
   const [filteredArtworks, setFilteredArtworks] = useState([]);
-  const [filters, setFilters] = useState({
-    category: '',
-    artist: '',
-    minPrice: '',
-    maxPrice: ''
-  });
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Mock data - replace with actual API call
+  const API_BASE_URL = 'https://finalproject-backend-1-ttj5.onrender.com';
+
+  // Fetch artworks from API
   useEffect(() => {
-    const mockArtworks = [
-      { id: 1, title: 'Abstract Dreams', artist: 'Marie Dubois', category: 'Abstract', price: 1200, image: '/api/placeholder/300/300' },
-      { id: 2, title: 'City Lights', artist: 'Jean Martin', category: 'Urban', price: 800, image: '/api/placeholder/300/300' },
-      { id: 3, title: 'Nature\'s Call', artist: 'Sophie Laurent', category: 'Landscape', price: 1500, image: '/api/placeholder/300/300' },
-      { id: 4, title: 'Portrait Study', artist: 'Marie Dubois', category: 'Portrait', price: 950, image: '/api/placeholder/300/300' },
-      { id: 5, title: 'Modern Geometry', artist: 'Pierre Blanc', category: 'Abstract', price: 2200, image: '/api/placeholder/300/300' },
-      { id: 6, title: 'Sunset Valley', artist: 'Sophie Laurent', category: 'Landscape', price: 1800, image: '/api/placeholder/300/300' }
-    ];
-    setArtworks(mockArtworks);
-    setFilteredArtworks(mockArtworks);
+    const fetchArtworks = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const response = await fetch(`${API_BASE_URL}/api/collector/browse`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch artworks');
+        }
+        const data = await response.json();
+        const mappedArtworks = data.artworks.map(art => ({
+          id: art.id,
+          title: art.title,
+          artist: art.artist,
+          category: art.category,
+          price: art.price,
+          image: art.image_urls && art.image_urls.length > 0 ? art.image_urls[0] : '/api/placeholder/300/300'
+        }));
+        setArtworks(mappedArtworks);
+        setFilteredArtworks(mappedArtworks);
+      } catch (err) {
+        setError(err.message);
+        console.error('Error fetching artworks:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchArtworks();
   }, []);
 
   useEffect(() => {
-    let filtered = artworks.filter(artwork => {
-      const matchesCategory = !filters.category || artwork.category === filters.category;
-      const matchesArtist = !filters.artist || artwork.artist === filters.artist;
-      const matchesMinPrice = !filters.minPrice || artwork.price >= parseInt(filters.minPrice);
-      const matchesMaxPrice = !filters.maxPrice || artwork.price <= parseInt(filters.maxPrice);
-      
-      return matchesCategory && matchesArtist && matchesMinPrice && matchesMaxPrice;
-    });
+    let filtered = artworks;
+
+    if (selectedCategory) {
+      filtered = filtered.filter(artwork => artwork.category === selectedCategory);
+    }
+
+    if (searchTerm) {
+      filtered = filtered.filter(artwork =>
+        artwork.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        artwork.artist.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        artwork.category.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
     setFilteredArtworks(filtered);
-  }, [filters, artworks]);
+  }, [selectedCategory, searchTerm, artworks]);
 
-  const handleFilterChange = (filterType, value) => {
-    setFilters(prev => ({ ...prev, [filterType]: value }));
+  const handleCategorySelect = (category) => {
+    setSelectedCategory(category === selectedCategory ? '' : category);
+    setIsDropdownOpen(false);
   };
 
-  const clearFilters = () => {
-    setFilters({ category: '', artist: '', minPrice: '', maxPrice: '' });
-  };
+  const categories = [...new Set(artworks.map(art => art.category))];
 
-  const uniqueCategories = [...new Set(artworks.map(art => art.category))];
-  const uniqueArtists = [...new Set(artworks.map(art => art.artist))];
+  if (loading) {
+    return (
+      <div className="gallery-page">
+        <div className="gallery-container">
+          <div className="gallery-header">
+            <h1 className="gallery-title">Art Gallery</h1>
+            <p className="gallery-subtitle">Loading artworks...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="gallery-page">
+        <div className="gallery-container">
+          <div className="gallery-header">
+            <h1 className="gallery-title">Art Gallery</h1>
+            <p className="gallery-subtitle">Error loading artworks: {error}</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="gallery-page">
-      <div className="gallery-header">
-        <h1 className="gallery-title">Galerie d'Art</h1>
-      </div>
-
       <div className="gallery-container">
-        <div className="filters-sidebar">
-          <h3 className="filters-title">Filtres</h3>
-          
-          <div className="filter-group">
-            <label className="filter-label">Catégorie</label>
-            <select 
-              className="filter-select"
-              value={filters.category}
-              onChange={(e) => handleFilterChange('category', e.target.value)}
-            >
-              <option value="">Toutes</option>
-              {uniqueCategories.map(category => (
-                <option key={category} value={category}>{category}</option>
-              ))}
-            </select>
-          </div>
+        <div className="gallery-header">
+          <h1 className="gallery-title">Art Gallery</h1>
+          <p className="gallery-subtitle">Discover unique artworks from talented artisans</p>
+        </div>
 
-          <div className="filter-group">
-            <label className="filter-label">Artiste</label>
-            <select 
-              className="filter-select"
-              value={filters.artist}
-              onChange={(e) => handleFilterChange('artist', e.target.value)}
-            >
-              <option value="">Tous</option>
-              {uniqueArtists.map(artist => (
-                <option key={artist} value={artist}>{artist}</option>
-              ))}
-            </select>
-          </div>
-
-          <div className="filter-group">
-            <label className="filter-label">Prix minimum (€)</label>
-            <input 
-              type="number"
-              className="filter-input"
-              placeholder="0"
-              value={filters.minPrice}
-              onChange={(e) => handleFilterChange('minPrice', e.target.value)}
-            />
-          </div>
-
-          <div className="filter-group">
-            <label className="filter-label">Prix maximum (€)</label>
-            <input 
-              type="number"
-              className="filter-input"
-              placeholder="10000"
-              value={filters.maxPrice}
-              onChange={(e) => handleFilterChange('maxPrice', e.target.value)}
-            />
-          </div>
-
-          <button className="clear-filters-btn" onClick={clearFilters}>
-            Effacer les filtres
-          </button>
+        <div className="search-section">
+          <input
+            type="text"
+            placeholder="Search artworks, artists, or categories..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="search-input"
+          />
         </div>
 
         <div className="artworks-grid">
           {filteredArtworks.map(artwork => (
             <div key={artwork.id} className="artwork-card">
-              <img 
-                src={artwork.image} 
+              <img
+                src={artwork.image}
                 alt={artwork.title}
                 className="artwork-image"
               />
@@ -124,10 +124,40 @@ export default function Gallery() {
                 <h3 className="artwork-title">{artwork.title}</h3>
                 <p className="artwork-artist">{artwork.artist}</p>
                 <p className="artwork-category">{artwork.category}</p>
-                <p className="artwork-price">{artwork.price}€</p>
+                <p className="artwork-price">${artwork.price}</p>
               </div>
             </div>
           ))}
+        </div>
+      </div>
+
+      <div className="floating-category-filter">
+        <div className="category-dropdown">
+          <button
+            className="category-button"
+            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+          >
+            Catégories {selectedCategory && `(${selectedCategory})`}
+          </button>
+          {isDropdownOpen && (
+            <div className="category-menu">
+              <button
+                className="category-item"
+                onClick={() => handleCategorySelect('')}
+              >
+                Toutes les catégories
+              </button>
+              {categories.map(category => (
+                <button
+                  key={category}
+                  className="category-item"
+                  onClick={() => handleCategorySelect(category)}
+                >
+                  {category}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>
