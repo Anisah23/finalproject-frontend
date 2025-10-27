@@ -14,6 +14,9 @@ export default function Navigation() {
           <Link to="/gallery" className="nav-link">
             Galerie
           </Link>
+          <Link to="/wishlist" className="nav-link">
+            Ma Liste
+          </Link>
           <Link to="/auth" className="nav-link">
             Sign In / Sign Up
           </Link>
