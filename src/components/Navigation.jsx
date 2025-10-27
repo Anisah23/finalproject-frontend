@@ -10,12 +10,14 @@ export default function Navigation() {
             L'art du vrai soi
           </h1>
         </Link>
-        <Link
-          to="/auth"
-          className="nav-link"
-        >
-          Sign In / Sign Up
-        </Link>
+        <div className="nav-links">
+          <Link to="/gallery" className="nav-link">
+            Galerie
+          </Link>
+          <Link to="/auth" className="nav-link">
+            Sign In / Sign Up
+          </Link>
+        </div>
       </div>
     </nav>
   );
