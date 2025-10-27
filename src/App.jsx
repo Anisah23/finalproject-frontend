@@ -5,6 +5,7 @@ import LandingPage from "./pages/LandingPage";
 import Auth from "./pages/Auth";
 import Gallery from "./pages/Gallery";
 import "./App.css"; // Ensure you have Tailwind CSS set up
+import "./App.css";
 
 function App() {
   return (
