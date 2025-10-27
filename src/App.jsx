@@ -4,6 +4,7 @@ import Navigation from "./components/Navigation";
 import LandingPage from "./pages/LandingPage";
 import Auth from "./pages/Auth";
 import Gallery from "./pages/Gallery";
+import Wishlist from "./pages/Wishlist";
 import "./App.css"; // Ensure you have Tailwind CSS set up
 import "./App.css";
 
@@ -18,6 +19,7 @@ function App() {
             <Route path="/" element={<LandingPage />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/gallery" element={<Gallery />} />
+            <Route path="/wishlist" element={<Wishlist />} />
           </Routes>
         </div>
       </div>
